@@ -61,14 +61,17 @@ def endMOTD(sender, headers, message):
     bot.say(chanName, "The underlying framework is in no way limited to the above functions.")
     bot.say(chanName, "This is merely an example of the framework's usage")
 
+def useSSL(argv):
+    return len (argv) == 6 and argv[5] == "ssl"
+
 # Main program begins here
 if __name__ == "__main__":
-    if len(sys.argv) == 5:
+    if len(sys.argv) == 5 or useSSL(sys.argv):
         server = sys.argv[1]
         port = int(sys.argv[2])
         owner = sys.argv[3]
         chanName = "#" + sys.argv[4]
-        bot = ircBot(server, port, "ExampleBot", "An example bot written with the new IRC bot framework")
+        bot = ircBot(server, port, "ExampleBot", "An example bot written with the new IRC bot framework", ssl=useSSL(sys.argv))
         bot.bind("PRIVMSG", privmsg)
         bot.bind("ACTION", actionmsg)
         bot.bind("376", endMOTD)
@@ -80,6 +83,6 @@ if __name__ == "__main__":
         bot.stop()
         bot.join()
     else:
-        print "Usage: python examplebot.py <server> <port> <your IRC nick> <irc channel (no '#' character please)>"
+        print "Usage: python examplebot.py <server> <port> <your IRC nick> <irc channel (no '#' character please)> <ssl (optional)>"
 
 

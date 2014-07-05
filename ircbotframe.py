@@ -2,6 +2,7 @@ import socket
 import threading
 import re
 import time
+import ssl
 
 class ircOutputBuffer:
     # Delays consecutive messages by at least 1 second.
@@ -73,13 +74,14 @@ class ircInputBuffer:
         return str(line)
 
 class ircBot(threading.Thread):
-    def __init__(self, network, port, name, description):
+    def __init__(self, network, port, name, description, ssl=False):
         threading.Thread.__init__(self)
         self.keepGoing = True
         self.name = name
         self.desc = description
         self.network = network
         self.port = port
+        self.ssl = ssl
         self.identifyNickCommands = []
         self.identifyLock = False
         self.binds = []
@@ -179,6 +181,8 @@ class ircBot(threading.Thread):
         self.__debugPrint("Connecting...")
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.irc.connect((self.network, self.port))
+        if self.ssl:
+            self.irc = ssl.wrap_socket(self.irc)
         self.inBuf = ircInputBuffer(self.irc)
         self.outBuf = ircOutputBuffer(self.irc)
         self.outBuf.sendBuffered("NICK " + self.name)
